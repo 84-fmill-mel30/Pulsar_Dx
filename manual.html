@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PULSAR DX — Manual de Usuario</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Orbitron:wght@400;600;700;900&display=swap');
+
+:root {
+  --bg-main: #060A14;
+  --bg-card: #0C1220;
+  --bg-card2: #101B30;
+  --accent: #ff8c1a;
+  --accent2: #00C48C;
+  --accent3: #F5A623;
+  --purple: #9b5adf;
+  --red: #FF4B5C;
+  --white: #F0F4F8;
+  --gray: #8899AA;
+  --border: #1A2B45;
+  --glow: rgba(255,140,26,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Rajdhani', sans-serif;
+  background: var(--bg-main);
+  color: var(--white);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.sidebar {
+  position: fixed; left: 0; top: 0; width: 280px; height: 100vh;
+  background: var(--bg-card); border-right: 1px solid var(--border);
+  z-index: 100; overflow-y: auto; transition: transform 0.3s;
+}
+.sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); text-align: center; }
+.sidebar-header h1 { font-family: 'Orbitron', sans-serif; font-size: 15px; color: var(--accent); letter-spacing: 2px; }
+.sidebar-header .version { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--accent3); margin-top: 4px; }
+.sidebar-header .subtitle { font-size: 12px; color: var(--gray); margin-top: 2px; }
+.nav-section { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.nav-section-title { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; padding: 0 20px; margin-bottom: 6px; }
+.nav-link { display: block; padding: 8px 20px 8px 28px; color: var(--gray); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; border-left: 3px solid transparent; }
+.nav-link:hover, .nav-link.active { color: var(--white); background: var(--glow); border-left-color: var(--accent); }
+.nav-link .icon { margin-right: 8px; }
+.nav-link.juls { color: var(--purple); }
+.nav-link.juls:hover, .nav-link.juls.active { background: rgba(155,90,223,0.12); border-left-color: var(--purple); color: var(--white); }
+
+.main { margin-left: 280px; padding: 30px 40px; max-width: 1000px; }
+
+.hero { text-align: center; padding: 50px 20px; margin-bottom: 40px; background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card2) 100%); border: 1px solid var(--border); border-radius: 12px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 50% 50%, rgba(255,140,26,0.08) 0%, transparent 60%); animation: pulse-glow 4s ease-in-out infinite; }
+@keyframes pulse-glow { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+.hero h1 { font-family: 'Orbitron', sans-serif; font-size: 34px; font-weight: 900; letter-spacing: 3px; background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; position: relative; }
+.hero .tagline { font-size: 16px; color: var(--gray); margin-top: 10px; position: relative; }
+.hero .badge { display: inline-block; background: var(--accent); color: #0a0e1a; font-weight:700; font-family: 'Share Tech Mono', monospace; font-size: 11px; padding: 4px 12px; border-radius: 20px; margin-top: 14px; position: relative; }
+.hero img.hero-icon { width: 96px; height: 96px; margin-bottom: 14px; position: relative; filter: drop-shadow(0 8px 20px rgba(255,140,26,0.35)); }
+
+.section { margin-bottom: 40px; scroll-margin-top: 20px; }
+.section-title { font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: 1px; padding-bottom: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.section-title .num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--accent); color: #0a0e1a; border-radius: 8px; font-family: 'Share Tech Mono', monospace; font-size: 14px; flex-shrink: 0; }
+
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; transition: border-color 0.3s; }
+.card:hover { border-color: var(--accent); }
+.card-title { font-family: 'Orbitron', sans-serif; font-size: 14px; color: var(--accent2); margin-bottom: 10px; letter-spacing: 1px; }
+.card p, .card li { color: var(--gray); font-size: 15px; line-height: 1.7; }
+.card ul { list-style: none; padding: 0; }
+.card li { padding: 6px 0; padding-left: 20px; position: relative; }
+.card li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); font-weight: bold; }
+
+.step { display: flex; gap: 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 12px; align-items: flex-start; transition: border-color 0.3s; }
+.step:hover { border-color: var(--accent2); }
+.step-num { min-width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), #c96a10); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 16px; color: #0a0e1a; flex-shrink: 0; }
+.step-content h4 { font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+.step-content p { font-size: 14px; color: var(--gray); line-height: 1.5; }
+
+.spec-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+.spec-table th { background: var(--bg-card2); color: var(--accent); font-family: 'Share Tech Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--accent); }
+.spec-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--gray); }
+.spec-table tr:nth-child(even) td { background: rgba(16,27,48,0.5); }
+.spec-table tr:hover td { background: var(--glow); color: var(--white); }
+
+.tag { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 11px; padding: 3px 10px; border-radius: 4px; margin: 2px; }
+.tag-blue { background: rgba(64,200,255,0.15); color: #40c8ff; border: 1px solid rgba(64,200,255,0.3); }
+.tag-green { background: rgba(0,196,140,0.15); color: var(--accent2); border: 1px solid rgba(0,196,140,0.3); }
+.tag-gold { background: rgba(245,166,35,0.15); color: var(--accent3); border: 1px solid rgba(245,166,35,0.3); }
+.tag-purple { background: rgba(155,90,223,0.15); color: var(--purple); border: 1px solid rgba(155,90,223,0.4); }
+
+.alert { border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 14px; display: flex; align-items: flex-start; gap: 10px; }
+.alert-info { background: rgba(255,140,26,0.1); border: 1px solid rgba(255,140,26,0.3); color: var(--accent); }
+.alert-warn { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.3); color: var(--accent3); }
+.alert-success { background: rgba(0,196,140,0.1); border: 1px solid rgba(0,196,140,0.3); color: var(--accent2); }
+.alert-purple { background: rgba(155,90,223,0.12); border: 1px solid rgba(155,90,223,0.4); color: var(--purple); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+.mod-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; transition: all 0.3s; }
+.mod-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,140,26,0.15); }
+.mod-icon { font-size: 30px; margin-bottom: 8px; }
+.mod-name { font-family: 'Orbitron', sans-serif; font-size: 13px; color: var(--white); letter-spacing: 1px; margin-bottom: 6px; }
+.mod-desc { font-size: 13px; color: var(--gray); margin-bottom: 8px; }
+.mod-data { font-size: 12px; color: var(--accent2); font-family:'Share Tech Mono',monospace; }
+
+/* ═══ JULS BANNER (independiente, morado) ═══ */
+.juls-banner {
+  background: linear-gradient(135deg, #150a24 0%, #1f1035 100%);
+  border: 1px solid var(--purple);
+  border-radius: 14px;
+  padding: 30px 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.juls-banner::before {
+  content: '';
+  position: absolute; top: -30%; right: -20%; width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(155,90,223,0.25) 0%, transparent 70%);
+}
+.juls-header { display: flex; align-items: center; gap: 18px; margin-bottom: 18px; position: relative; }
+.juls-header img { width: 68px; height: 68px; border-radius: 18px; flex-shrink: 0; }
+.juls-header h2 { font-family: 'Orbitron', sans-serif; font-size: 22px; color: var(--purple); letter-spacing: 1px; }
+.juls-header .juls-sub { font-size: 13px; color: var(--gray); margin-top: 4px; }
+
+.footer { text-align: center; padding: 30px 20px; border-top: 1px solid var(--border); margin-top: 40px; color: var(--gray); font-size: 13px; }
+.footer strong { color: var(--accent); }
+
+.hamburger { display: none; position: fixed; top: 12px; left: 12px; z-index: 200; background: var(--accent); border: none; color: #0a0e1a; width: 42px; height: 42px; border-radius: 8px; font-size: 22px; cursor: pointer; font-weight:700; }
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); width: 260px; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; padding: 20px 16px; padding-top: 60px; }
+  .hamburger { display: flex; align-items: center; justify-content: center; }
+  .hero h1 { font-size: 24px; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .juls-header { flex-direction: column; text-align: center; }
+}
+
+@media print {
+  .sidebar, .hamburger { display: none !important; }
+  .main { margin-left: 0; }
+  body { background: #fff; color: #111; }
+  .card, .step { border-color: #ccc; background: #fafafa; }
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h1>PULSAR DX</h1>
+    <div class="version">DATESEG MX — v1.0</div>
+    <div class="subtitle">Manual de Usuario</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Inicio</div>
+    <a href="#historia" class="nav-link"><span class="icon">🇲🇽</span> Nuestra Historia</a>
+    <a href="#descripcion" class="nav-link"><span class="icon">📋</span> Descripción del Producto</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Primeros Pasos</div>
+    <a href="#hardware" class="nav-link"><span class="icon">🔌</span> Adaptador Recomendado</a>
+    <a href="#requisitos" class="nav-link"><span class="icon">📱</span> Requisitos del Sistema</a>
+    <a href="#instalacion" class="nav-link"><span class="icon">⬇️</span> Instalación y Primer Uso</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Módulos de la App</div>
+    <a href="#mod-diagnostico" class="nav-link"><span class="icon">📊</span> Diagnóstico en Vivo</a>
+    <a href="#mod-ia" class="nav-link"><span class="icon">🤖</span> IA Diagnóstica</a>
+    <a href="#mod-camara" class="nav-link"><span class="icon">📷</span> Cámara de Diagnóstico</a>
+    <a href="#mod-freeze" class="nav-link"><span class="icon">🧊</span> Freeze Frame</a>
+    <a href="#mod-diagramas" class="nav-link"><span class="icon">🔧</span> Diagramas de Cableado</a>
+    <a href="#mod-reportes" class="nav-link"><span class="icon">📄</span> Reportes PDF</a>
+    <a href="#mod-vehiculos" class="nav-link"><span class="icon">🚗</span> Base de Vehículos</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Referencia</div>
+    <a href="#basedatos" class="nav-link"><span class="icon">💾</span> Actualización de Datos</a>
+    <a href="#troubleshoot" class="nav-link"><span class="icon">🛠️</span> Solución de Problemas</a>
+    <a href="#roadmap" class="nav-link"><span class="icon">🗺️</span> Roadmap</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Asistente</div>
+    <a href="#juls" class="nav-link juls"><span class="icon">👑</span> JULS — Asistente Personal</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Soporte</div>
+    <a href="#contacto" class="nav-link"><span class="icon">📞</span> Contacto y Soporte</a>
+  </div>
+</nav>
+
+<div class="main">
+
+  <div class="hero" id="intro">
+    <img src="pulsardx_icon.png" alt="Icono de PULSAR DX" class="hero-icon">
+    <h1>PULSAR DX</h1>
+    <div class="tagline">Diagnóstico Automotriz OBD2 con Inteligencia Artificial — Hecho en México 🇲🇽</div>
+    <div class="badge">DATESEG MX — SISTEMA DE TECNOLOGÍAS AUTOMOTRICES</div>
+  </div>
+
+  <!-- 01. HISTORIA -->
+  <div class="section" id="historia">
+    <div class="section-title"><span class="num">01</span> NUESTRA HISTORIA</div>
+    <div class="card">
+      <p>Esto empezó hace poco más de dos años, sin saber nada de programación, aprendiendo por cuenta propia a puro ensayo y error. Muchos dijeron que no se podía aprender a desarrollar así, nada más viendo tutoriales y aventándose — y aquí está PULSAR DX, prueba de que sí se pudo.</p>
+      <p style="margin-top:12px;">Fue un camino de estudiar de noche, equivocarse mil veces y volver a intentar. Hoy esta herramienta reúne todo ese esfuerzo: diagnóstico automotriz real, con inteligencia artificial, hecho por un mexicano que le echó ganas.</p>
+      <p style="margin-top:12px;">Nada de esto hubiera avanzado igual sin la ayuda de las herramientas de inteligencia artificial con las que se trabajó codo a codo en cada línea de código:</p>
+      <div style="margin-top:10px;">
+        <span class="tag tag-blue">Claude (Anthropic)</span>
+        <span class="tag tag-blue">Gemini (Google)</span>
+      </div>
+      <p style="margin-top:14px;">Esperamos que esta herramienta les sirva y les guste. Seguimos en proceso, seguimos creciendo, y contamos con su apoyo y sus comentarios para seguir mejorando.</p>
+      <p style="margin-top:14px; text-align:right; color:var(--accent); font-weight:600; font-style:italic;">— Fernando Millán Melchor, fundador de DATESEG MX</p>
+    </div>
+  </div>
+
+  <!-- 02. DESCRIPCION -->
+  <div class="section" id="descripcion">
+    <div class="section-title"><span class="num">02</span> DESCRIPCIÓN DEL PRODUCTO</div>
+    <div class="card">
+      <p><strong style="color:var(--white)">PULSAR DX</strong> es un sistema de diagnóstico automotriz OBD2 desarrollado por <strong style="color:var(--accent)">DATESEG MX — Sistema de Tecnologías Automotrices</strong>, en Alpuyeca, Xochitepec, Morelos, México. Combina un adaptador OBD2 por Bluetooth con inteligencia artificial para ayudar a talleres, mecánicos y dueños de vehículos a entender qué le pasa a su auto, sin necesitar equipo profesional costoso.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">CARACTERÍSTICAS PRINCIPALES</div>
+      <ul>
+        <li>Diagnóstico OBD2 en tiempo real vía Bluetooth/USB</li>
+        <li>Asistente de inteligencia artificial para análisis de fallas</li>
+        <li>Cámara con visión por IA para diagnóstico visual</li>
+        <li>Detección de anomalías con freeze frame automático</li>
+        <li>Diagramas de cableado eléctrico interactivos</li>
+        <li>Generación de reportes en PDF y envío directo por WhatsApp</li>
+        <li>Base de datos con más de 160 vehículos y creciendo</li>
+        <li>Demo gratuita de 7 días para probar antes de adquirir la licencia</li>
+        <li>Asistente JULS integrado, que lee tus sensores en vivo y te contesta con voz</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 03. HARDWARE -->
+  <div class="section" id="hardware">
+    <div class="section-title"><span class="num">03</span> ADAPTADOR RECOMENDADO</div>
+    <div class="card">
+      <p>PULSAR DX necesita un adaptador OBD2 con Bluetooth conectado al puerto de diagnóstico de tu vehículo (normalmente debajo del volante).</p>
+      <div class="grid-2" style="margin-top:14px;">
+        <div class="mod-card">
+          <span class="tag tag-blue">Básico</span>
+          <div class="mod-name" style="margin-top:10px;">ELM327 (clon genérico)</div>
+          <div class="mod-desc">Ideal para empezar y probar la app. Lee sensores básicos y códigos de falla (DTCs). Económico y fácil de conseguir.</div>
+        </div>
+        <div class="mod-card" style="border-color:var(--accent);">
+          <span class="tag tag-gold">Completo — Recomendado</span>
+          <div class="mod-name" style="margin-top:10px;">OBDLink MX+</div>
+          <div class="mod-desc">Mayor velocidad de lectura, mejor estabilidad de conexión, y compatibilidad completa con freeze frame, diagnóstico avanzado y módulos especializados.</div>
+        </div>
+      </div>
+      <div class="alert alert-info" style="margin-top:16px;">
+        <span>ℹ️</span> Si usas la app de forma ocasional, el ELM327 es suficiente. Si la vas a usar seguido o en un taller, vale la pena invertir en el OBDLink MX+.
+      </div>
+    </div>
+  </div>
+
+  <!-- 04. REQUISITOS -->
+  <div class="section" id="requisitos">
+    <div class="section-title"><span class="num">04</span> REQUISITOS DEL SISTEMA</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">DISPOSITIVO MÓVIL</div>
+        <ul>
+          <li>Android 8.0 o superior</li>
+          <li>Bluetooth 4.0+ (compatible con BLE)</li>
+          <li>Cámara (para el módulo de diagnóstico visual)</li>
+          <li>Permisos: Bluetooth, Ubicación, Cámara, Almacenamiento</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">CONEXIÓN</div>
+        <ul>
+          <li>Adaptador OBD2 Bluetooth (ELM327 u OBDLink MX+)</li>
+          <li>Conexión a internet para el asistente de IA</li>
+          <li>Funciona sin internet para lectura básica de sensores</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 05. INSTALACION -->
+  <div class="section" id="instalacion">
+    <div class="section-title"><span class="num">05</span> INSTALACIÓN Y PRIMER USO</div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Descarga el APK</h4>
+        <p>Descarga <code style="color:var(--accent2)">app-debug.apk</code> desde el link oficial de DATESEG MX.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Permite la instalación</h4>
+        <p>Si tu teléfono bloquea la instalación, ve a <strong style="color:var(--white)">Ajustes → Seguridad → Orígenes desconocidos</strong> y actívalo para el navegador que usaste para descargar.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Conecta tu adaptador OBD2</h4>
+        <p>Conecta el adaptador al puerto de diagnóstico del vehículo (con el auto encendido o en contacto). Activa el Bluetooth del teléfono y empareja el adaptador — si pide PIN, prueba con <strong>0000</strong> o <strong>1234</strong>.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Selecciona tu vehículo y conecta</h4>
+        <p>Abre PULSAR DX, elige tu vehículo de la base de datos (o configúralo manualmente) y dale a <strong>Conectar</strong>.</p>
+      </div>
+    </div>
+
+    <div class="alert alert-success">
+      <span>✅</span> Tienes 7 días de prueba gratis con acceso a las funciones principales antes de necesitar una licencia.
+    </div>
+  </div>
+
+  <!-- MODULOS -->
+  <div class="section" id="mod-diagnostico">
+    <div class="section-title"><span class="num">06</span> MÓDULO: DIAGNÓSTICO EN VIVO</div>
+    <div class="card">
+      <p>Lee los parámetros del vehículo en tiempo real directo del puerto OBD2, mostrando el estado del motor mientras trabajas o manejas.</p>
+      <div class="card-title" style="margin-top:14px;">PARÁMETROS QUE LEE (PIDs estándar OBD2)</div>
+      <ul>
+        <li>RPM del motor</li>
+        <li>Velocidad del vehículo</li>
+        <li>Temperatura del refrigerante</li>
+        <li>Voltaje de la batería</li>
+        <li>Sensores de oxígeno (lambda)</li>
+        <li>Flujo de aire (MAF) y presión del múltiple (MAP)</li>
+        <li>Códigos de falla activos, pendientes e históricos (DTCs)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section" id="mod-ia">
+    <div class="section-title"><span class="num">07</span> MÓDULO: IA DIAGNÓSTICA</div>
+    <div class="card">
+      <p>Asistente de inteligencia artificial que analiza los datos que arroja el vehículo y te explica en palabras simples qué puede estar fallando, sugiriendo posibles causas y próximos pasos.</p>
+    </div>
+  </div>
+
+  <div class="section" id="mod-camara">
+    <div class="section-title"><span class="num">08</span> MÓDULO: CÁMARA DE DIAGNÓSTICO</div>
+    <div class="card">
+      <p>Usa la cámara del teléfono junto con visión por IA para ayudarte a identificar componentes, fugas o daños visibles en el vehículo.</p>
+    </div>
+  </div>
+
+  <div class="section" id="mod-freeze">
+    <div class="section-title"><span class="num">09</span> MÓDULO: FREEZE FRAME</div>
+    <div class="card">
+      <p>Detecta anomalías en los sensores y toma automáticamente una "fotografía" de todos los parámetros en el momento exacto de la falla, guardándola en un historial para que puedas revisarla después con calma.</p>
+    </div>
+  </div>
+
+  <div class="section" id="mod-diagramas">
+    <div class="section-title"><span class="num">10</span> MÓDULO: DIAGRAMAS DE CABLEADO</div>
+    <div class="card">
+      <p>Diagramas eléctricos interactivos con colores reales de cables, filtros por marca, sistema y componente — para ubicar rápido lo que necesitas revisar.</p>
+      <div class="alert alert-info" style="margin-top:14px;">
+        <span>ℹ️</span> Ningún dato de cableado se inventa: todo se transcribe y verifica contra manuales oficiales y fuentes confiables.
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="mod-reportes">
+    <div class="section-title"><span class="num">11</span> MÓDULO: REPORTES PDF</div>
+    <div class="card">
+      <p>Genera un reporte profesional en PDF con el diagnóstico del vehículo, listo para compartir directo por WhatsApp con tu cliente, o para imprimir en impresora térmica Bluetooth.</p>
+    </div>
+  </div>
+
+  <div class="section" id="mod-vehiculos">
+    <div class="section-title"><span class="num">12</span> MÓDULO: BASE DE VEHÍCULOS</div>
+    <div class="card">
+      <p>Base de datos con más de <strong style="color:var(--white)">160 vehículos</strong> organizados por marca, con filtros rápidos para encontrar el tuyo al momento de conectar.</p>
+    </div>
+  </div>
+
+  <!-- BASE DE DATOS -->
+  <div class="section" id="basedatos">
+    <div class="section-title"><span class="num">13</span> ACTUALIZACIÓN DE DATOS</div>
+    <div class="card">
+      <div class="alert alert-warn">
+        <span>🔄</span> La base de datos de vehículos, sensores y códigos de falla se actualiza constantemente. Todavía nos falta mucho por cubrir y seguimos trabajando cada semana para sumar más marcas, modelos y diagramas.
+      </div>
+    </div>
+  </div>
+
+  <!-- TROUBLESHOOTING -->
+  <div class="section" id="troubleshoot">
+    <div class="section-title"><span class="num">14</span> SOLUCIÓN DE PROBLEMAS</div>
+    <div class="card">
+      <table class="spec-table">
+        <tr><th>Problema</th><th>Causa probable</th><th>Solución</th></tr>
+        <tr>
+          <td style="color:var(--white)">No encuentra el adaptador</td>
+          <td>Bluetooth o GPS apagado, o permiso de ubicación denegado</td>
+          <td>Activa Bluetooth y GPS, y otorga permiso de ubicación a la app</td>
+        </tr>
+        <tr>
+          <td style="color:var(--white)">Encuentra el adaptador pero no conecta</td>
+          <td>Adaptador emparejado con otra app o PIN incorrecto</td>
+          <td>Olvida el dispositivo en Bluetooth del sistema y vuelve a emparejar</td>
+        </tr>
+        <tr>
+          <td style="color:var(--white)">No lee datos del vehículo</td>
+          <td>Ignición apagada</td>
+          <td>Verifica que la llave esté en contacto (ON)</td>
+        </tr>
+        <tr>
+          <td style="color:var(--white)">Gráficas sin datos</td>
+          <td>Motor apagado — datos en vivo requieren motor encendido</td>
+          <td>Enciende el motor para que los sensores envíen datos</td>
+        </tr>
+        <tr>
+          <td style="color:var(--white)">El APK no se instala</td>
+          <td>Orígenes desconocidos desactivados</td>
+          <td>Ajustes → Seguridad → Orígenes desconocidos → Activar</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ROADMAP -->
+  <div class="section" id="roadmap">
+    <div class="section-title"><span class="num">15</span> ROADMAP</div>
+    <div class="card">
+      <div class="card-title">ACTUAL <span class="tag tag-green">DISPONIBLE</span></div>
+      <ul>
+        <li>Diagnóstico OBD2 en vivo con IA</li>
+        <li>Cámara de diagnóstico visual</li>
+        <li>Freeze frame con historial de anomalías</li>
+        <li>Reportes PDF y envío por WhatsApp</li>
+        <li>Diagramas de cableado interactivos</li>
+        <li>Asistente JULS leyendo sensores por voz</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">EN CRECIMIENTO <span class="tag tag-gold">CONTINUO</span></div>
+      <ul>
+        <li>Ampliación constante de la base de vehículos, sensores y DTCs</li>
+        <li>Más diagramas de cableado verificados</li>
+        <li>Mejoras continuas de la IA diagnóstica</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">PRÓXIMAMENTE <span class="tag tag-purple">ANUNCIO</span></div>
+      <ul>
+        <li>JULS como asistente personal independiente con integración a Google Drive, Calendario, Sheets y más</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ═══════════ JULS — BANNER INDEPENDIENTE ═══════════ -->
+  <div class="section" id="juls">
+    <div class="section-title" style="color:var(--purple); border-bottom-color:var(--purple);"><span class="num" style="background:var(--purple);">★</span> JULS — ASISTENTE PERSONAL</div>
+
+    <div class="juls-banner">
+      <div class="juls-header">
+        <img src="juls_icon.png" alt="Icono de JULS">
+        <div>
+          <h2>JULS</h2>
+          <div class="juls-sub">Asistente personal con inteligencia artificial · Dedicado a la hija de Fernando Millán</div>
+        </div>
+      </div>
+
+      <p style="position:relative;">Dentro de PULSAR DX, JULS vive como una burbuja flotante que lee los parámetros de tu carro en vivo y te contesta con voz — para que no despegues las manos del trabajo. Esa función nació primero, pero JULS va mucho más allá: también existe como <strong style="color:#fff;">aplicación independiente</strong>, un asistente personal completo.</p>
+
+      <div class="card-title" style="margin-top:18px; color:var(--purple);">FUNCIONES DE LA APP JULS</div>
+      <ul>
+        <li>Chat conversacional con inteligencia artificial</li>
+        <li>Reconocimiento de voz para interactuar sin usar las manos</li>
+        <li>Respuestas por voz (Text-to-Speech)</li>
+        <li>Traductor integrado</li>
+        <li>Generador de páginas web con IA</li>
+        <li>Comandos de voz para llamadas, WhatsApp y mensajes de texto</li>
+        <li>Lectura de notificaciones (WhatsApp, Telegram, SMS) con respuestas sugeridas por IA</li>
+      </ul>
+
+      <div class="alert alert-purple" style="margin-top:16px;">
+        <span>👑</span> <strong>Próximamente:</strong> anunciaremos el salto de JULS a asistente personal completo, con integración a Google Drive, Calendario, Sheets y más — para ayudarte no solo con tu carro, sino con tu día a día.
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACTO -->
+  <div class="section" id="contacto">
+    <div class="section-title"><span class="num">16</span> CONTACTO Y SOPORTE</div>
+    <div class="card">
+      <table class="spec-table">
+        <tr><th>Dato</th><th>Información</th></tr>
+        <tr><td style="color:var(--accent)">Empresa</td><td style="color:var(--white)">DATESEG MX — Sistema de Tecnologías Automotrices</td></tr>
+        <tr><td style="color:var(--accent)">Fundador</td><td style="color:var(--white)">Fernando Millán Melchor</td></tr>
+        <tr><td style="color:var(--accent)">Ubicación</td><td>Alpuyeca, Xochitepec, Morelos, México</td></tr>
+        <tr><td style="color:var(--accent)">Email</td><td style="color:var(--white)">ventasdatesegmx@gmail.com</td></tr>
+        <tr><td style="color:var(--accent)">WhatsApp</td><td style="color:var(--white)">777 683 8196 · 221 956 7392</td></tr>
+      </table>
+      <p style="margin-top:14px; font-size:14px;">Déjanos tus comentarios para futuras mejoras — seguimos en proceso y contamos con tu apoyo.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>PULSAR DX v1.0</strong> — DATESEG MX<br>
+    Manual de Usuario — Hecho en México 🇲🇽<br>
+    <span style="color:var(--gray);font-size:11px;">© 2026 Fernando Millán Melchor — Todos los derechos reservados</span>
+  </div>
+
+</div>
+
+<script>
+const links = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('.section, .hero');
+function updateActive() {
+  let current = '';
+  sections.forEach(s => { const top = s.getBoundingClientRect().top; if (top < 150) current = s.id || ''; });
+  links.forEach(l => { l.classList.remove('active'); if (l.getAttribute('href') === '#' + current) l.classList.add('active'); });
+}
+window.addEventListener('scroll', updateActive);
+updateActive();
+links.forEach(l => l.addEventListener('click', () => { if (window.innerWidth <= 768) document.querySelector('.sidebar').classList.remove('open'); }));
+</script>
+</body>
+</html>
