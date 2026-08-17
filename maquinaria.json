@@ -1,0 +1,68 @@
+{
+  "caterpillar_950_payloader": {
+    "marca": "Caterpillar",
+    "modelo": "950",
+    "tipo": "maquinaria_pesada",
+    "nombre": "Caterpillar 950 Payloader",
+    "protocolo": "SAE J1939",
+    "conector": "Deutsch 9 pines",
+    "baudrate": "250k (confirmar con manual OBDLink / datos placa motor)",
+    "fallas_dm1": [],
+    "pgns_confirmados": {},
+    "notas": "Unidad de prueba real de Fernando. Pendiente: confirmar baudrate exacto y PGNs específicos de este motor con manual de servicio CAT o lectura directa del bus."
+  },
+
+  "_EJEMPLO_hyundai_excavadora": {
+    "marca": "Hyundai",
+    "modelo": "PON AQUÍ EL MODELO (ej. R210, HL770)",
+    "tipo": "maquinaria_pesada",
+    "nombre": "",
+    "protocolo": "SAE J1939",
+    "conector": "PON AQUÍ (9 pines Deutsch o 6 pines, varía por año)",
+    "baudrate": "",
+    "fallas_dm1": [],
+    "pgns_confirmados": {},
+    "notas": "Plantilla de ejemplo — duplica esta entrada, cámbiale la clave (sin '_EJEMPLO_') y llena los datos reales cuando los tengas."
+  },
+
+  "_EJEMPLO_kenworth_tractocamion": {
+    "marca": "Kenworth",
+    "modelo": "PON AQUÍ (ej. T680, T880)",
+    "tipo": "tractocamion",
+    "motor": "PON AQUÍ (ej. PACCAR MX-13, Cummins X15) — el protocolo J1939 es del MOTOR, no de la marca del camión",
+    "nombre": "",
+    "protocolo": "SAE J1939",
+    "conector": "Deutsch 9 pines (cabina) o 6 pines según año",
+    "baudrate": "",
+    "fallas_dm1": [],
+    "pgns_confirmados": {},
+    "notas": "En tractocamiones de quinta rueda, el motor (Cummins, PACCAR, Detroit, etc.) suele ser lo que realmente define los PGNs — dos Kenworth con motor distinto pueden variar. Anota siempre la marca del MOTOR, no solo del camión."
+  },
+
+  "_EJEMPLO_freightliner_tractocamion": {
+    "marca": "Freightliner",
+    "modelo": "PON AQUÍ (ej. Cascadia)",
+    "tipo": "tractocamion",
+    "motor": "PON AQUÍ (ej. Detroit DD15, Cummins X15)",
+    "nombre": "",
+    "protocolo": "SAE J1939",
+    "conector": "",
+    "baudrate": "",
+    "fallas_dm1": [],
+    "pgns_confirmados": {},
+    "notas": ""
+  },
+
+  "_EJEMPLO_komatsu_maquinaria": {
+    "marca": "Komatsu",
+    "modelo": "PON AQUÍ (ej. PC450, D65)",
+    "tipo": "maquinaria_pesada",
+    "nombre": "",
+    "protocolo": "SAE J1939",
+    "conector": "",
+    "baudrate": "",
+    "fallas_dm1": [],
+    "pgns_confirmados": {},
+    "notas": ""
+  }
+}

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>DATESEG MX — Base de Datos Vehículos</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fafaf7;--surface:#ffffff;--ink:#0a0a0a;--ink-soft:#3a3a3a;
+    --mute:#8a8a86;--line:#e8e8e3;--line-strong:#d4d4cf;
+    --red:#c8102e;--green:#006847;--amber:#f59e0b;--ok:#059669;
+    --chip:#f2f2ed;--firebase:#FFA000;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);color:var(--ink);font-family:'Archivo',sans-serif;overscroll-behavior:none}
+  body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+  button{font-family:inherit}
+
+  /* HEADER */
+  .header{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+  .h-back{width:34px;height:34px;border-radius:50%;background:var(--chip);border:none;cursor:pointer;font-size:18px;color:var(--ink-soft);display:flex;align-items:center;justify-content:center}
+  .h-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.04em;line-height:1;text-align:center}
+  .h-title span{color:var(--red)}
+  .h-sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mute);letter-spacing:.2em;text-transform:uppercase;margin-top:3px;text-align:center}
+  .h-stat{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink);font-weight:800;background:var(--chip);padding:6px 10px;border-radius:8px}
+
+  /* STATS BAR */
+  .stats{padding:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+  .stat-k{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--mute);text-transform:uppercase;letter-spacing:.15em}
+  .stat-v{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1;margin-top:4px}
+  .stat-sub{font-size:9px;color:var(--mute);margin-top:2px;font-family:'JetBrains Mono',monospace}
+  .stat.accent{background:var(--ink);color:#fff}
+  .stat.accent .stat-k{color:#9ca3af}
+  .stat.accent .stat-sub{color:#9ca3af}
+
+  /* SECTION TITLE */
+  .sec-title{padding:8px 18px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--mute);font-weight:700}
+
+  /* ============================================ */
+  /* SOURCE CARDS - 2 OPCIONES GRANDES */
+  /* ============================================ */
+  .sources{padding:0 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .source{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:16px 14px;cursor:pointer;text-align:center;position:relative;overflow:hidden;transition:all .2s}
+  .source:active{transform:scale(.97);border-color:var(--red)}
+  .source-ic{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px}
+  .source-name{font-size:14px;font-weight:800;letter-spacing:-.01em}
+  .source-desc{font-size:10px;color:var(--mute);margin-top:4px;line-height:1.4}
+  .source-badge{position:absolute;top:8px;right:8px;font-family:'JetBrains Mono',monospace;font-size:8px;padding:3px 6px;border-radius:4px;letter-spacing:.05em;font-weight:700}
+  
+  .source.json .source-ic{background:#e0f2fe;color:#0369a1}
+  .source.json .source-badge{background:#0369a1;color:#fff}
+  .source.firebase .source-ic{background:#fff8e1;color:var(--firebase)}
+  .source.firebase .source-badge{background:var(--firebase);color:#fff}
+
+  .source.active{border-color:var(--ok);background:rgba(5,150,105,.04)}
+  .source.active::after{content:"✓";position:absolute;top:8px;left:8px;width:22px;height:22px;border-radius:50%;background:var(--ok);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+
+  /* hidden file input */
+  #fileInput{display:none}
+
+  /* ============================================ */
+  /* DROP ZONE */
+  /* ============================================ */
+  .drop{margin:14px;padding:24px 16px;background:var(--surface);border:2px dashed var(--line-strong);border-radius:14px;text-align:center;cursor:pointer;transition:all .2s}
+  .drop:hover,.drop.over{border-color:var(--red);background:#fff5f6}
+  .drop-ic{font-size:36px;margin-bottom:8px;opacity:.4}
+  .drop-title{font-size:14px;font-weight:700;margin-bottom:4px}
+  .drop-desc{font-size:11px;color:var(--mute);line-height:1.4}
+  .drop-formats{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mute);margin-top:8px;letter-spacing:.1em}
+
+  /* ============================================ */
+  /* FIREBASE CONFIG */
+  /* ============================================ */
+  .fb-config{margin:14px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px}
+  .fb-row{display:flex;flex-direction:column;margin-bottom:10px}
+  .fb-row:last-child{margin-bottom:0}
+  .fb-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mute);text-transform:uppercase;letter-spacing:.15em;margin-bottom:5px}
+  .fb-input{padding:10px 12px;border:1px solid var(--line);background:var(--chip);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none}
+  .fb-input:focus{border-color:var(--ink);background:#fff}
+  .fb-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+
+  /* ============================================ */
+  /* BUTTONS */
+  /* ============================================ */
+  .btn{padding:14px;border-radius:12px;font-size:13px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s}
+  .btn:active{transform:scale(.97)}
+  .btn-primary{background:var(--ink);color:#fff}
+  .btn-secondary{background:var(--chip);color:var(--ink)}
+  .btn-success{background:var(--ok);color:#fff}
+  .btn-warn{background:var(--red);color:#fff}
+  .btn-firebase{background:var(--firebase);color:#fff}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn-block{width:100%}
+
+  /* ============================================ */
+  /* MODELOS LIST */
+  /* ============================================ */
+  .list-head{padding:14px 18px 8px;display:flex;justify-content:space-between;align-items:center}
+  .list-head .lt{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:var(--mute);font-weight:700}
+  .list-head .filters{display:flex;gap:6px}
+  .list-head .filter-chip{padding:5px 10px;border-radius:6px;background:var(--chip);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.05em;cursor:pointer;border:none;font-weight:700;color:var(--ink-soft)}
+  .list-head .filter-chip.active{background:var(--ink);color:#fff}
+
+  .search{margin:0 14px 12px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:8px}
+  .search input{flex:1;border:none;outline:none;font-size:13px;font-family:inherit;background:transparent;color:var(--ink)}
+  .search-ic{color:var(--mute);font-size:14px}
+
+  .modelo{margin:0 14px 8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:all .15s}
+  .modelo:active{transform:scale(.99);border-color:var(--red)}
+  .modelo-info .marca-modelo{font-size:13px;font-weight:700;letter-spacing:-.01em}
+  .modelo-info .ecu{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mute);margin-top:3px;letter-spacing:.05em}
+  .modelo-stats{text-align:right}
+  .modelo-pines{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;color:var(--ok)}
+  .modelo-source{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.1em;margin-top:3px;padding:2px 5px;border-radius:3px;display:inline-block}
+  .modelo-source.json{background:#e0f2fe;color:#0369a1}
+  .modelo-source.fb{background:#fff8e1;color:var(--firebase)}
+  .modelo-source.local{background:var(--chip);color:var(--ink-soft)}
+
+  /* SHEET */
+  .sheet-bg{position:fixed;inset:0;background:rgba(10,10,10,.55);backdrop-filter:blur(6px);z-index:90;opacity:0;pointer-events:none;transition:opacity .25s}
+  .sheet-bg.open{opacity:1;pointer-events:auto}
+  .sheet{position:fixed;left:0;right:0;bottom:0;top:5%;background:var(--bg);border-radius:24px 24px 0 0;z-index:91;transform:translateY(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);display:flex;flex-direction:column;overflow:hidden}
+  .sheet.open{transform:translateY(0)}
+  .sheet-handle{width:40px;height:4px;background:var(--line-strong);border-radius:3px;margin:10px auto;flex-shrink:0}
+  .sheet-head{padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:var(--surface);flex-shrink:0}
+  .sheet-title{font-size:16px;font-weight:800;letter-spacing:-.01em}
+  .sheet-close{width:32px;height:32px;border-radius:50%;background:var(--chip);border:none;cursor:pointer;font-size:16px;color:var(--ink-soft)}
+  .sheet-body{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+
+  /* PIN ROW */
+  .pin-row{display:grid;grid-template-columns:36px 1fr auto;gap:10px;padding:9px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-bottom:5px;align-items:center}
+  .pin-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;color:var(--ink);background:var(--chip);border-radius:6px;padding:4px 0;text-align:center}
+  .pin-fn{font-size:12px;font-weight:600;letter-spacing:-.01em;line-height:1.2}
+  .pin-spec{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mute);margin-top:2px}
+  .pin-color{display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink-soft);font-weight:700;letter-spacing:.05em}
+  .color-dot{width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.15)}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:12px;z-index:200;opacity:0;transition:all .25s;pointer-events:none;font-weight:600;max-width:90%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.ok{background:var(--ok)}
+  .toast.err{background:var(--red)}
+  .toast.warn{background:var(--amber)}
+
+  /* PROGRESS */
+  .progress{position:fixed;top:0;left:0;right:0;height:3px;background:var(--chip);z-index:300;display:none}
+  .progress.show{display:block}
+  .progress i{display:block;height:100%;background:var(--red);width:0%;transition:width .3s}
+
+  .empty{padding:40px 20px;text-align:center;color:var(--mute)}
+  .empty .e-ic{font-size:36px;opacity:.3;margin-bottom:10px}
+  .empty .e-title{font-size:14px;font-weight:700;margin-bottom:4px;color:var(--ink-soft)}
+  .empty .e-desc{font-size:11px}
+
+  .body-pad{padding-bottom:30px}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"><i id="progressBar"></i></div>
+
+<header class="header">
+  <button class="h-back" onclick="window.history.back()">‹</button>
+  <div>
+    <div class="h-title">BASE DE <span>DATOS</span></div>
+    <div class="h-sub">Catálogo de Vehículos</div>
+  </div>
+  <div class="h-stat" id="totalCount">0</div>
+</header>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stat">
+    <div class="stat-k">Modelos</div>
+    <div class="stat-v" id="statModels">0</div>
+    <div class="stat-sub">cargados</div>
+  </div>
+  <div class="stat">
+    <div class="stat-k">Pines</div>
+    <div class="stat-v" id="statPins">0</div>
+    <div class="stat-sub">activos</div>
+  </div>
+  <div class="stat accent">
+    <div class="stat-k">Marcas</div>
+    <div class="stat-v" id="statBrands">0</div>
+    <div class="stat-sub">distintas</div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- 2 OPCIONES DE FUENTE -->
+<!-- ============================================ -->
+<div class="sec-title">Cargar base de datos</div>
+
+<div class="sources">
+  <div class="source json" id="srcJson" onclick="showJsonUpload()">
+    <div class="source-badge">LOCAL</div>
+    <div class="source-ic">📂</div>
+    <div class="source-name">Subir JSON</div>
+    <div class="source-desc">Desde tu celular o<br>Google Drive</div>
+  </div>
+  <div class="source firebase" id="srcFb" onclick="showFirebaseConfig()">
+    <div class="source-badge">CLOUD</div>
+    <div class="source-ic">☁️</div>
+    <div class="source-name">Firebase</div>
+    <div class="source-desc">Sincronizar proyecto<br>"propart"</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- DROP ZONE PARA JSON -->
+<!-- ============================================ -->
+<div id="jsonZone" style="display:none">
+  <div class="drop" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <div class="drop-ic">📥</div>
+    <div class="drop-title">Toca para seleccionar archivo</div>
+    <div class="drop-desc">O arrastra el JSON aquí desde tu Drive / archivos</div>
+    <div class="drop-formats">JSON · MÚLTIPLES PERMITIDOS</div>
+  </div>
+  <input type="file" id="fileInput" accept=".json,application/json" multiple>
+  <div style="padding:0 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+    <button class="btn btn-secondary" onclick="loadDemoData()">📦 Cargar Demo (23)</button>
+    <button class="btn btn-warn" onclick="confirmClear()">🗑 Limpiar Todo</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- FIREBASE CONFIG -->
+<!-- ============================================ -->
+<div id="fbZone" style="display:none">
+  <div class="fb-config">
+    <div class="fb-row">
+      <label class="fb-label">Project ID</label>
+      <input class="fb-input" id="fbProject" value="propart" placeholder="ej. propart">
+    </div>
+    <div class="fb-row">
+      <label class="fb-label">Database URL</label>
+      <input class="fb-input" id="fbUrl" value="https://propart-default-rtdb.firebaseio.com" placeholder="URL de Realtime DB">
+    </div>
+    <div class="fb-row">
+      <label class="fb-label">Path / Colección</label>
+      <input class="fb-input" id="fbPath" value="vehiculos" placeholder="vehiculos">
+    </div>
+    <div class="fb-row">
+      <label class="fb-label">API Key (opcional)</label>
+      <input class="fb-input" id="fbKey" placeholder="AIzaSy..." type="password">
+    </div>
+    <div class="fb-actions">
+      <button class="btn btn-firebase" onclick="syncFirebase()">☁️ Sincronizar</button>
+      <button class="btn btn-secondary" onclick="exportToFirebase()">⬆ Subir local</button>
+    </div>
+  </div>
+  <div style="padding:0 14px">
+    <button class="btn btn-secondary btn-block" onclick="showQRCode()">📱 Ver QR del proyecto</button>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- LISTA DE MODELOS -->
+<!-- ============================================ -->
+<div class="list-head">
+  <div class="lt">Modelos cargados</div>
+  <div class="filters">
+    <button class="filter-chip active" onclick="filterBy(this,'all')">TODOS</button>
+    <button class="filter-chip" onclick="filterBy(this,'json')">JSON</button>
+    <button class="filter-chip" onclick="filterBy(this,'fb')">CLOUD</button>
+  </div>
+</div>
+
+<div class="search">
+  <span class="search-ic">🔍</span>
+  <input id="searchBox" type="search" placeholder="Buscar marca, modelo o motor..." oninput="renderList()">
+</div>
+
+<div id="modelosList"></div>
+
+<div class="body-pad"></div>
+
+<!-- SHEET DETALLE MODELO -->
+<div class="sheet-bg" id="sheetBg" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-head">
+    <div>
+      <div class="sheet-title" id="sheetTitle">Modelo</div>
+    </div>
+    <button class="sheet-close" onclick="closeSheet()">✕</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================
+// STATE
+// ============================================
+const state = {
+  vehiculos: {},  // {id: {...}}
+  filter: 'all',
+  search: ''
+};
+
+// ============================================
+// LOCALSTORAGE PERSISTENCIA  (NOTA: en Claude artifacts no funciona, 
+// pero sí en GitHub Pages / app real - aquí sólo lo dejamos como demo)
+// ============================================
+
+// ============================================
+// CARGAR JSON DESDE ARCHIVO
+// ============================================
+document.getElementById('fileInput').addEventListener('change', async (e) => {
+  const files = e.target.files;
+  if(!files.length) return;
+  
+  showProgress(true);
+  let total = 0, errors = 0;
+  
+  for(let i = 0; i < files.length; i++){
+    setProgress((i / files.length) * 100);
+    try {
+      const text = await files[i].text();
+      const count = await processJsonText(text, 'json');
+      total += count;
+    } catch(err) {
+      errors++;
+      console.error(`Error en ${files[i].name}:`, err);
+    }
+  }
+  
+  setProgress(100);
+  setTimeout(() => showProgress(false), 400);
+  
+  if(total > 0){
+    toast(`✓ ${total} modelo${total>1?'s':''} cargado${total>1?'s':''}`, 'ok');
+  } else {
+    toast('⚠ Ningún modelo válido', 'warn');
+  }
+  if(errors) toast(`${errors} archivo(s) con error`, 'err');
+  
+  renderAll();
+  e.target.value = ''; // reset
+});
+
+// Drag & Drop
+const drop = document.getElementById('dropZone');
+['dragenter','dragover'].forEach(ev => drop?.addEventListener(ev, e => {
+  e.preventDefault();
+  drop.classList.add('over');
+}));
+['dragleave','drop'].forEach(ev => drop?.addEventListener(ev, e => {
+  e.preventDefault();
+  drop.classList.remove('over');
+}));
+drop?.addEventListener('drop', async e => {
+  e.preventDefault();
+  const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.json'));
+  if(!files.length){ toast('Solo archivos .json', 'warn'); return; }
+  document.getElementById('fileInput').files = e.dataTransfer.files;
+  document.getElementById('fileInput').dispatchEvent(new Event('change'));
+});
+
+// ============================================
+// PROCESAR TEXTO JSON (puede ser uno o varios)
+// ============================================
+async function processJsonText(text, source){
+  let count = 0;
+  // Intento 1: JSON normal
+  try {
+    const parsed = JSON.parse(text);
+    
+    // Caso A: estructura {vehiculos: {id1:{}, id2:{}}}
+    if(parsed.vehiculos && typeof parsed.vehiculos === 'object'){
+      for(const [id, m] of Object.entries(parsed.vehiculos)){
+        if(addModelo(m, source, id)) count++;
+      }
+      return count;
+    }
+    // Caso B: array de modelos
+    if(Array.isArray(parsed)){
+      parsed.forEach(m => { if(addModelo(m, source)) count++; });
+      return count;
+    }
+    // Caso C: un solo modelo
+    if(parsed.modelo || parsed.layout_peinado){
+      if(addModelo(parsed, source)) count++;
+      return count;
+    }
+  } catch(e) {}
+  
+  // Intento 2: varios JSONs pegados (formato Gemini)
+  let depth = 0, start = null;
+  for(let i = 0; i < text.length; i++){
+    if(text[i] === '{'){ if(depth === 0) start = i; depth++; }
+    else if(text[i] === '}'){
+      depth--;
+      if(depth === 0 && start !== null){
+        try {
+          const obj = JSON.parse(text.substring(start, i+1));
+          if(addModelo(obj, source)) count++;
+        } catch(e) {}
+        start = null;
+      }
+    }
+  }
+  return count;
+}
+
+// ============================================
+// AGREGAR MODELO (con normalización)
+// ============================================
+function addModelo(raw, source, forcedId){
+  // Soporta dos formatos: el de Gemini ({modelo, ecu, layout_peinado}) 
+  // o el ya normalizado ({marca, modelo, motor, pinout})
+  let id, marca, modelo, motor, ecu, pinout;
+  
+  if(raw.layout_peinado){
+    // Formato Gemini
+    const nombre = raw.modelo || '';
+    const tokens = nombre.replace(/_/g,' ').split(' ').filter(Boolean);
+    marca = tokens[0] || '?';
+    modelo = tokens.slice(1, -1).join(' ') || tokens.slice(1).join(' ') || '?';
+    motor = tokens[tokens.length - 1] || '';
+    ecu = (raw.ecu || '').replace(/_/g,' ');
+    pinout = raw.layout_peinado;
+    id = forcedId || nombre.toLowerCase().replace(/[^a-z0-9_]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');
+  } else if(raw.pinout){
+    // Formato ya normalizado
+    id = forcedId || raw.id || (raw.marca + '_' + raw.modelo).toLowerCase().replace(/[^a-z0-9_]/g,'_');
+    marca = raw.marca; modelo = raw.modelo; motor = raw.motor || '';
+    ecu = raw.ecu || ''; pinout = raw.pinout;
+  } else {
+    return false; // No reconocido
+  }
+  
+  if(!pinout || !pinout.length) return false;
+  
+  const activos = pinout.filter(p => 
+    !String(p.f || p.funcion || '').toUpperCase().includes('VACÍO') && 
+    p.c !== 'N/A' && p.color !== 'N/A'
+  );
+  
+  state.vehiculos[id] = {
+    id, marca, modelo, motor, ecu,
+    pines_totales: pinout.length,
+    pines_activos: activos.length,
+    pinout,
+    source: source || 'local',
+    fecha: new Date().toISOString().slice(0,10),
+    vacuna_propart: raw.vacuna_propart
+  };
+  return true;
+}
+
+// ============================================
+// FIREBASE SYNC (Realtime DB - usando REST)
+// ============================================
+async function syncFirebase(){
+  const url = document.getElementById('fbUrl').value.trim();
+  const path = document.getElementById('fbPath').value.trim();
+  
+  if(!url){ toast('⚠ Falta el Database URL', 'warn'); return; }
+  
+  showProgress(true);
+  setProgress(20);
+  toast('☁️ Conectando a Firebase...', 'ok');
+  
+  try {
+    // REST API: GET https://<url>/<path>.json
+    const fetchUrl = `${url.replace(/\/$/,'')}/${path}.json`;
+    setProgress(50);
+    const res = await fetch(fetchUrl);
+    
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    
+    setProgress(75);
+    const data = await res.json();
+    
+    if(!data){ toast('⚠ La ruta está vacía', 'warn'); showProgress(false); return; }
+    
+    let count = 0;
+    if(typeof data === 'object'){
+      for(const [id, m] of Object.entries(data)){
+        if(addModelo(m, 'fb', id)) count++;
+      }
+    }
+    setProgress(100);
+    setTimeout(() => showProgress(false), 400);
+    toast(`☁️ ${count} modelos sincronizados desde Firebase`, 'ok');
+    renderAll();
+  } catch(err) {
+    showProgress(false);
+    toast(`✗ Error: ${err.message}`, 'err');
+    console.error(err);
+  }
+}
+
+async function exportToFirebase(){
+  const url = document.getElementById('fbUrl').value.trim();
+  const path = document.getElementById('fbPath').value.trim();
+  
+  if(!url){ toast('⚠ Falta el Database URL', 'warn'); return; }
+  if(Object.keys(state.vehiculos).length === 0){ toast('⚠ No hay modelos para subir', 'warn'); return; }
+  
+  showProgress(true);
+  setProgress(30);
+  
+  try {
+    const payload = {};
+    for(const [id, v] of Object.entries(state.vehiculos)){
+      payload[id] = v;
+    }
+    setProgress(60);
+    const fetchUrl = `${url.replace(/\/$/,'')}/${path}.json`;
+    const res = await fetch(fetchUrl, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    setProgress(100);
+    setTimeout(() => showProgress(false), 400);
+    
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    toast(`⬆ ${Object.keys(payload).length} modelos subidos a Firebase`, 'ok');
+  } catch(err) {
+    showProgress(false);
+    toast(`✗ Error subiendo: ${err.message}`, 'err');
+  }
+}
+
+function showQRCode(){
+  toast('QR del proyecto Firebase (próximamente)', 'warn');
+}
+
+// ============================================
+// UI: Mostrar/ocultar zonas
+// ============================================
+function showJsonUpload(){
+  document.getElementById('jsonZone').style.display = 'block';
+  document.getElementById('fbZone').style.display = 'none';
+  document.getElementById('srcJson').classList.add('active');
+  document.getElementById('srcFb').classList.remove('active');
+}
+function showFirebaseConfig(){
+  document.getElementById('fbZone').style.display = 'block';
+  document.getElementById('jsonZone').style.display = 'none';
+  document.getElementById('srcFb').classList.add('active');
+  document.getElementById('srcJson').classList.remove('active');
+}
+
+// ============================================
+// FILTROS Y SEARCH
+// ============================================
+function filterBy(btn, type){
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  state.filter = type;
+  renderList();
+}
+
+function renderList(){
+  state.search = document.getElementById('searchBox').value.toLowerCase().trim();
+  const list = document.getElementById('modelosList');
+  
+  let items = Object.values(state.vehiculos);
+  if(state.filter !== 'all') items = items.filter(v => v.source === state.filter);
+  if(state.search){
+    items = items.filter(v => 
+      (v.marca||'').toLowerCase().includes(state.search) ||
+      (v.modelo||'').toLowerCase().includes(state.search) ||
+      (v.motor||'').toLowerCase().includes(state.search) ||
+      (v.ecu||'').toLowerCase().includes(state.search)
+    );
+  }
+  
+  if(items.length === 0){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="e-ic">📭</div>
+        <div class="e-title">Sin modelos cargados</div>
+        <div class="e-desc">Sube un JSON o sincroniza con Firebase</div>
+      </div>
+    `;
+    return;
+  }
+  
+  // Ordenar por marca, modelo
+  items.sort((a,b) => (a.marca+a.modelo).localeCompare(b.marca+b.modelo));
+  
+  list.innerHTML = items.map(v => {
+    const srcClass = v.source === 'fb' ? 'fb' : v.source === 'json' ? 'json' : 'local';
+    const srcLabel = v.source === 'fb' ? 'CLOUD' : v.source === 'json' ? 'JSON' : 'LOCAL';
+    return `
+      <div class="modelo" onclick="openModelo('${v.id}')">
+        <div class="modelo-info">
+          <div class="marca-modelo">${v.marca} ${v.modelo} ${v.motor?`<small style="color:var(--mute);font-weight:500">· ${v.motor}</small>`:''}</div>
+          <div class="ecu">${v.ecu || 'ECU sin especificar'}</div>
+        </div>
+        <div class="modelo-stats">
+          <div class="modelo-pines">${v.pines_activos}/${v.pines_totales}</div>
+          <div class="modelo-source ${srcClass}">${srcLabel}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================
+// SHEET DETALLE
+// ============================================
+function openModelo(id){
+  const v = state.vehiculos[id];
+  if(!v) return;
+  document.getElementById('sheetTitle').textContent = `${v.marca} ${v.modelo}`;
+  
+  let body = `
+    <div style="background:var(--ink);color:#fff;border-radius:14px;padding:14px;margin-bottom:14px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#9ca3af;letter-spacing:.2em;text-transform:uppercase">ECU</div>
+      <div style="font-size:14px;font-weight:700;margin-top:3px">${v.ecu}</div>
+      <div style="display:flex;gap:14px;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#b5b5b0">
+        <div>📌 Motor: <strong style="color:#fff">${v.motor || '—'}</strong></div>
+        <div>📍 ${v.pines_activos}/${v.pines_totales} pines</div>
+      </div>
+    </div>
+  `;
+  
+  if(v.vacuna_propart){
+    body += `
+      <div style="background:#fff5e6;border:1px solid var(--amber);border-left:4px solid var(--amber);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:5px">📌 Vacuna Propart</div>
+        <div style="font-size:12px;line-height:1.5;color:var(--ink)">${typeof v.vacuna_propart === 'string' ? v.vacuna_propart : JSON.stringify(v.vacuna_propart, null, 2)}</div>
+      </div>
+    `;
+  }
+  
+  body += `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);font-weight:700;margin-bottom:8px">Pinout (${v.pinout.length})</div>`;
+  
+  body += v.pinout.map(p => {
+    const pin = p.p || p.pin || '?';
+    const fn = p.f || p.funcion || 'VACÍO';
+    const color = p.c || p.color || 'N/A';
+    const spec = p.v || p.voltaje || p.spec || '';
+    const isEmpty = String(fn).toUpperCase().includes('VACÍO');
+    const colorHex = colorToHex(color);
+    return `
+      <div class="pin-row" style="${isEmpty?'opacity:.4':''}">
+        <div class="pin-num">${pin}</div>
+        <div>
+          <div class="pin-fn">${fn}</div>
+          ${spec ? `<div class="pin-spec">${spec}</div>` : ''}
+        </div>
+        <div class="pin-color">
+          <span class="color-dot" style="background:${colorHex}"></span>${color}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  document.getElementById('sheetBody').innerHTML = body;
+  document.getElementById('sheetBg').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+}
+
+function closeSheet(){
+  document.getElementById('sheetBg').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+}
+
+function colorToHex(c){
+  const map = {
+    'rojo':'#dc2626','azul':'#2563eb','verde':'#16a34a','amarillo':'#eab308',
+    'negro':'#0a0a0a','blanco':'#fafafa','gris':'#6b7280','cafe':'#854d0e','café':'#854d0e','marron':'#854d0e',
+    'naranja':'#ea580c','rosa':'#ec4899','morado':'#9333ea','violeta':'#9333ea',
+    'celeste':'#38bdf8','beige':'#d6c8a8','dorado':'#ca8a04','plateado':'#cbd5e1',
+    'n/a':'#e5e5e5','vacio':'#e5e5e5','vacío':'#e5e5e5'
+  };
+  const c2 = (c||'').toLowerCase().split(/[\/\\,\-\s]/)[0].trim();
+  return map[c2] || '#cbd5e1';
+}
+
+// ============================================
+// DEMO + UTILS
+// ============================================
+function loadDemoData(){
+  const demo = [
+    {modelo:'Nissan_Versa_1.6L_HR16DE', ecu:'Hitachi PCM 3 Plugs', layout_peinado:[
+      {p:1,f:'B+ Batería',c:'Rojo',v:'12V'},
+      {p:2,f:'CKP Señal',c:'Blanco',v:'AC'},
+      {p:3,f:'Inyector 1',c:'Verde',v:'Pulse'},
+      {p:4,f:'Bobina 1',c:'Azul',v:'5V'},
+      {p:5,f:'TPS1',c:'Amarillo',v:'0.4-4.5V'},
+      {p:6,f:'ECT',c:'Verde/Negro',v:'NTC'},
+      {p:7,f:'MAF',c:'Cafe',v:'1-5V'},
+    ]},
+    {modelo:'Chevrolet_Cruze_1.4_Turbo', ecu:'Delphi E83', layout_peinado:[
+      {p:1,f:'B+',c:'Rojo',v:'12V'},
+      {p:65,f:'Inyector 1',c:'Verde/Negro',v:'12-16Ω'},
+      {p:2,f:'GND',c:'Negro',v:'GND'},
+    ]},
+    {modelo:'Ford_Fiesta_1.6L_Sigma', ecu:'Continental SIM-32', layout_peinado:[
+      {p:1,f:'B+',c:'Rojo',v:'12V'},
+      {p:30,f:'TPS1',c:'Verde',v:'0.5V'},
+      {p:31,f:'TPS2',c:'Azul',v:'4.5V'},
+    ]},
+  ];
+  let count = 0;
+  demo.forEach(m => { if(addModelo(m,'json')) count++; });
+  toast(`📦 ${count} modelos demo cargados`, 'ok');
+  renderAll();
+}
+
+function confirmClear(){
+  if(Object.keys(state.vehiculos).length === 0){ toast('Ya está vacía', 'warn'); return; }
+  if(confirm(`¿Borrar los ${Object.keys(state.vehiculos).length} modelos cargados?`)){
+    state.vehiculos = {};
+    renderAll();
+    toast('🗑 Base vaciada', 'ok');
+  }
+}
+
+// ============================================
+// RENDER GLOBAL
+// ============================================
+function renderAll(){
+  const items = Object.values(state.vehiculos);
+  const total = items.length;
+  const pines = items.reduce((s,v) => s + (v.pines_activos||0), 0);
+  const marcas = new Set(items.map(v => v.marca)).size;
+  
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('statModels').textContent = total;
+  document.getElementById('statPins').textContent = pines.toLocaleString();
+  document.getElementById('statBrands').textContent = marcas;
+  
+  renderList();
+}
+
+// ============================================
+// PROGRESS Y TOAST
+// ============================================
+function showProgress(show){
+  document.getElementById('progress').classList.toggle('show', show);
+  if(!show) setProgress(0);
+}
+function setProgress(pct){
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+let toastTimer;
+function toast(msg, type){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' '+type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============================================
+// INIT
+// ============================================
+showJsonUpload(); // Por defecto muestra la opción JSON
+renderAll();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">ProPart V8</string>
+    <string name="gcm_defaultSenderId" translatable="false">6983339770</string>
+    <string name="google_api_key" translatable="false">AIzaSyAMxcvDo5Shnp1C08gqgqNuLPAtvDnpc5DKk</string>
+    <string name="google_app_id" translatable="false">1:6983339770:android:479eB374effde888077c543</string>
+    <string name="google_storage_bucket" translatable="false">propart_v8-bidireccional.firebasestorage.app</string>
+    <string name="project_id" translatable="false">propart_v8-bidireccional</string>
+</resources>
